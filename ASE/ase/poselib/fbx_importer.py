@@ -33,6 +33,7 @@ import json
 from poselib.skeleton.skeleton3d import SkeletonTree, SkeletonState, SkeletonMotion
 from poselib.visualization.common import plot_skeleton_state, plot_skeleton_motion_interactive
 import sys
+sys.path.append('/opt/fbx_python_binding/build/Distrib/site-packages/fbx')
 
 # source fbx file path
 file_name = sys.argv[1]

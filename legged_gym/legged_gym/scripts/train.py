@@ -38,6 +38,7 @@ from legged_gym.utils import get_args, task_registry
 from shutil import copyfile
 import torch
 import wandb
+os.environ["WANDB_MODE"] = "offline"
 
 def train(args):
     args.headless = True

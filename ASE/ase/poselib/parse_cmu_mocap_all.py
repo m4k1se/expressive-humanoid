@@ -2,6 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from ruamel.yaml import YAML
 import numpy as np
+import os
+os.environ["HF_ENDPOINT"] = "https://hf-mirror.com"
 
 path = "./data/configs/"
 def find_entries(word, column):

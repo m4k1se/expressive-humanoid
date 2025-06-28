@@ -228,6 +228,7 @@ def process(i, motion_name, source_tpose, target_tpose, source_motion, target_mo
 
 def save_all():
     retarget_data_path = "data/configs/retarget_cmu_to_h1.json"
+    # 包含原动作路径，原/目标骨骼的T-Pose，骨骼关节映射，根部旋转差异，尺寸比例差异
     with open(retarget_data_path) as f:
         retarget_data = json.load(f)
 
