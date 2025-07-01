@@ -10,6 +10,7 @@ import yaml
 import os
 import multiprocessing
 from tqdm import tqdm
+sys.path.append("/home/renth/expressive-humanoid/ASE/ase/poselib")
 
 """
 This scripts shows how to retarget a motion clip from the source skeleton to a target skeleton.
@@ -26,6 +27,7 @@ Data required for retargeting are stored in a retarget config dictionary as a js
 VISUALIZE = False
 
 def project_joints(motion):
+    # 获取关节索引
     right_upper_arm_id = motion.skeleton_tree._node_indices["right_shoulder_pitch_link"]
     right_lower_arm_id = motion.skeleton_tree._node_indices["right_elbow_link"]
     right_hand_id = motion.skeleton_tree._node_indices["right_hand_link"]
@@ -42,30 +44,41 @@ def project_joints(motion):
     
     device = motion.global_translation.device
 
-    # right arm
+    # right arm 提取空间位置和旋转姿态
+    # global_translation.shape = [T, J, 3]
     right_upper_arm_pos = motion.global_translation[..., right_upper_arm_id, :]
     right_lower_arm_pos = motion.global_translation[..., right_lower_arm_id, :]
     right_hand_pos = motion.global_translation[..., right_hand_id, :]
+    # global_translation.shape = [T, J, 4]
     right_shoulder_rot = motion.local_rotation[..., right_upper_arm_id, :]
     right_elbow_rot = motion.local_rotation[..., right_lower_arm_id, :]
-    
-    right_arm_delta0 = right_upper_arm_pos - right_lower_arm_pos
-    right_arm_delta1 = right_hand_pos - right_lower_arm_pos
+
+    # 计算两个方向向量
+    right_arm_delta0 = right_upper_arm_pos - right_lower_arm_pos # 上臂段方向
+    right_arm_delta1 = right_hand_pos - right_lower_arm_pos # 前臂段方向
     right_arm_delta0 = right_arm_delta0 / torch.norm(right_arm_delta0, dim=-1, keepdim=True)
     right_arm_delta1 = right_arm_delta1 / torch.norm(right_arm_delta1, dim=-1, keepdim=True)
     # print("right_arm_delta0: ", right_arm_delta0, " right_arm_delta1: ", right_arm_delta1)
+    # 计算夹角的余弦，通过反余弦函数得到角度，再转换为四元数（绕Y轴旋转）
     right_elbow_dot = torch.sum(-right_arm_delta0 * right_arm_delta1, dim=-1)
     right_elbow_dot = torch.clamp(right_elbow_dot, -1.0, 1.0)
     right_elbow_theta = torch.acos(right_elbow_dot)
     right_elbow_q = quat_from_angle_axis(-torch.abs(right_elbow_theta), torch.tensor(np.array([[0.0, 1.0, 0.0]]), 
                                             device=device, dtype=torch.float32))
-    
+
+    # 获取手部的局部向量（相当于肘部）
     right_elbow_local_dir = motion.skeleton_tree.local_translation[right_hand_id]
     right_elbow_local_dir = right_elbow_local_dir / torch.norm(right_elbow_local_dir)
+    # 扩展到整个时间序列（T帧）
     right_elbow_local_dir_tile = torch.tile(right_elbow_local_dir.unsqueeze(0), [right_elbow_rot.shape[0], 1])
+
+    # 对比“修正前”和“修正后”的旋转方向
     right_elbow_local_dir0 = quat_rotate(right_elbow_rot, right_elbow_local_dir_tile)
     right_elbow_local_dir1 = quat_rotate(right_elbow_q, right_elbow_local_dir_tile)
+
+    # 计算两个方向之间的夹角theta
     right_arm_dot = torch.sum(right_elbow_local_dir0 * right_elbow_local_dir1, dim=-1)
+
     right_arm_dot = torch.clamp(right_arm_dot, -1.0, 1.0)
     right_arm_theta = torch.acos(right_arm_dot)
     right_arm_theta = torch.where(right_elbow_local_dir0[..., 1] <= 0, right_arm_theta, -right_arm_theta)
@@ -246,7 +259,7 @@ def save_all():
         target_motion_file = os.path.join(target_motion, motion_entry + ".npy")
         if os.path.exists(target_motion_file):
             print("Already exists, skip: ", motion_entry)
-            continue
+            # continue
         all_motion_names.append(motion_entry)
     all_motion_names.sort()
     print(len(all_motion_names))

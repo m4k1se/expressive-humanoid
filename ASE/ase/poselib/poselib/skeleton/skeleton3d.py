@@ -199,6 +199,8 @@ class SkeletonTree(Serializable):
         # recursively adding all nodes into the skel_tree
         def _add_xml_node(xml_node, parent_index, node_index):
             node_name = xml_node.attrib.get("name")
+            if (node_name == "WAIST_Y_S"):
+                print("aaa")
             # parse the local translation into float list
             print(xml_node.attrib)
             pos = np.fromstring(xml_node.attrib.get("pos"), dtype=float, sep=" ")
@@ -880,13 +882,18 @@ class SkeletonState(Serializable):
         :rtype: SkeletonState
         """
 
-        # STEP 0: Preprocess
+        # STEP 0: Preprocess 生成源/目标 T-Pose的SkeletonState对象
         source_tpose = SkeletonState.from_rotation_and_root_translation(
             skeleton_tree=self.skeleton_tree,
             r=source_tpose_local_rotation,
             t=source_tpose_root_translation,
             is_local=True,
         )
+        # "source_tpose": "data/tpose/cmu_fbx_tpose.npy",
+        # 包含source_tpose.local_rotation, source_tpose.root_translation
+        # "target_tpose": "data/tpose/h1_tpose.npy",
+        # 包含target_tpose.skeleton_tree, target_tpose.local_rotation,target_tpose.root_translation
+
         target_tpose = SkeletonState.from_rotation_and_root_translation(
             skeleton_tree=target_skeleton_tree,
             r=target_tpose_local_rotation,
@@ -894,7 +901,7 @@ class SkeletonState(Serializable):
             is_local=True,
         )
 
-        # STEP 1: Drop the irrelevant joints
+        # STEP 1: Drop the irrelevant joints 只保留参与映射的关节
         pairwise_translation = self._get_pairwise_average_translation()
         node_names = list(joint_mapping)
         new_skeleton_tree = self.skeleton_tree.keep_nodes_by_names(
@@ -911,7 +918,7 @@ class SkeletonState(Serializable):
         source_state = source_state._remapped_to(joint_mapping, target_skeleton_tree)
         # plot_skeleton_state(source_tpose)
 
-        # STEP 2: Rotate the source to align with the target
+        # STEP 2: Rotate the source to align with the target 对齐两个骨架的姿态参考系
         new_local_rotation = source_tpose.local_rotation.clone()
         new_local_rotation[..., 0, :] = quat_mul_norm(
             rotation_to_target_skeleton, source_tpose.local_rotation[..., 0, :]
@@ -935,12 +942,12 @@ class SkeletonState(Serializable):
             is_local=True,
         )
 
-        # STEP 3: Normalize to match the target scale
+        # STEP 3: Normalize to match the target scale 对齐两个骨架的姿态参考系
         root_translation_diff = (
             source_state.root_translation - source_tpose.root_translation
         ) * scale_to_target_skeleton
         # STEP 4: the global rotation from source state relative to source tpose and
-        # re-apply to the target
+        # re-apply to the target 通过全局旋转相对差异进行动作匹配
         current_skeleton_tree = source_state.skeleton_tree
         target_tpose_global_rotation = source_state.global_rotation[0, :].clone()
         for current_index, name in enumerate(current_skeleton_tree):
@@ -959,7 +966,7 @@ class SkeletonState(Serializable):
         )
 
         # plot_skeleton_state(target_tpose)
-        # STEP 5: Putting 3 and 4 together
+        # STEP 5: Putting 3 and 4 together 拼装出目标骨架的局部姿态
         current_skeleton_tree = source_state.skeleton_tree
         shape = source_state.global_rotation.shape[:-1]
         shape = shape[:-1] + target_tpose.global_rotation.shape[-2:-1]

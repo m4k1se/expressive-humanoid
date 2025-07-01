@@ -29,7 +29,6 @@
 # Copyright (c) 2021 ETH Zurich, Nikita Rudin
 
 import numpy as np
-import os
 from datetime import datetime
 
 import isaacgym
@@ -37,8 +36,10 @@ from legged_gym.envs import *
 from legged_gym.utils import get_args, task_registry
 from shutil import copyfile
 import torch
-import wandb
+import os
 os.environ["WANDB_MODE"] = "offline"
+os.environ["WANDB_API_KEY"] = "b3805438adc89d393facb56d12d52d2f3e414820"
+import wandb
 
 def train(args):
     args.headless = True
@@ -57,7 +58,10 @@ def train(args):
     
     if args.no_wandb:
         mode = "disabled"
-    wandb.init(project=args.proj_name, name=args.exptid, entity=args.entity, mode=mode, dir="../../logs")
+    wandb.init(project=args.proj_name,
+               name=args.exptid,
+               entity=args.entity,
+               mode="offline", dir="../../logs")
     wandb.save(LEGGED_GYM_ENVS_DIR + "/base/legged_robot_config.py", policy="now")
     wandb.save(LEGGED_GYM_ENVS_DIR + "/base/legged_robot.py", policy="now")
     wandb.save(LEGGED_GYM_ENVS_DIR + "/h1/h1_mimic_config.py", policy="now")

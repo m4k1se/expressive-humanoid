@@ -28,6 +28,7 @@
 
 import os
 
+
 from ..core import logger
 from .plt_plotter import Matplotlib3DPlotter
 from .skeleton_plotter_tasks import Draw3DSkeletonMotion, Draw3DSkeletonState
