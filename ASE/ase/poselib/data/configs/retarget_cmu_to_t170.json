@@ -1,0 +1,28 @@
+{
+    "motions_yaml": "data/configs/motions.yaml",
+    "source_motion": "data/npy",
+    "target_motion_path": "data/retarget_t170_npy",
+    "source_tpose": "data/tpose/cmu_fbx_tpose.npy",
+    "target_tpose": "data/tpose/t170_tpose.npy",
+    "joint_mapping": {
+         "Hips": "BASE_S",
+         "LeftUpLeg": "L_HIP_P_S",
+         "LeftLeg": "L_KNEE_P_S",
+         "LeftFoot": "L_ANKLE_P_S",
+         "RightUpLeg": "R_HIP_P_S",
+         "RightLeg": "R_KNEE_P_S",
+         "RightFoot": "R_ANKLE_P_S",
+         "Spine1": "WAIST_Y_S",
+         "LeftArm": "L_SHOULDER_P_S",
+         "LeftForeArm": "L_ELBOW_Y_S",
+         "LeftHand": "L_WRIST_Y_S",
+         "RightArm": "R_SHOULDER_P_S",
+         "RightForeArm": "R_ELBOW_Y_S",
+         "RightHand": "R_WRIST_Y_S"
+    },
+    "rotation": [ 0.5, 0.5, 0.5, 0.5],
+    "scale": 0.056444,
+	"root_height_offset": 0.0,
+	"trim_frame_beg": -1,
+	"trim_frame_end": -1
+}
