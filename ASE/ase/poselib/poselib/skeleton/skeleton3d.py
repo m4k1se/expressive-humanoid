@@ -36,6 +36,7 @@ import torch
 
 from ..core import *
 import scipy.ndimage.filters as filters
+from ..visualization.common import plot_skeleton_state, plot_skeleton_states
 
 
 class SkeletonTree(Serializable):
@@ -199,8 +200,8 @@ class SkeletonTree(Serializable):
         # recursively adding all nodes into the skel_tree
         def _add_xml_node(xml_node, parent_index, node_index):
             node_name = xml_node.attrib.get("name")
-            if (node_name == "WAIST_Y_S"):
-                print("aaa")
+            # if (node_name == "WAIST_Y_S"):
+            #     print("aaa")
             # parse the local translation into float list
             print(xml_node.attrib)
             pos = np.fromstring(xml_node.attrib.get("pos"), dtype=float, sep=" ")
@@ -985,7 +986,7 @@ class SkeletonState(Serializable):
             t=target_tpose.root_translation + root_translation_diff,
             is_local=False,
         ).local_repr()
-        # plot_skeleton_state(source_state)
+        # plot_skeleton_states(source_state)
 
         return source_state
 

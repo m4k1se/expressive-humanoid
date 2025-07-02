@@ -35,7 +35,7 @@
     <mesh name="NECK_Y_S" file="meshes/NECK_Y_S.STL"/>
   </asset>
   <worldbody>
-    <body name="BASE_S">
+    <body name="BASE_S" pos="0 0 0">
       <inertial pos="-6.5e-05 1e-06 -0.045045" quat="0.999999 -0.000732499 -0.000926746 7.76228e-06" mass="5.2943" diaginertia="0.0244336 0.0166126 0.0164971"/>
       <joint name="floating_base_joint" type="free" limited="false" actuatorfrclimited="false"/>
       <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="BASE_S"/>
@@ -112,7 +112,7 @@
           </body>
         </body>
       </body>
-      <body name="WAIST_Y_S">
+      <body name="WAIST_Y_S" pos="0 0 0">
         <inertial pos="-0.070117 0 0.109774" quat="0.32211 0.629462 0.6295 0.322107" mass="1.49971" diaginertia="0.00504279 0.00450544 0.0020536"/>
         <joint name="WAIST_Y" pos="0 0 0" axis="0 0 -1" range="-3.14 3.14" actuatorfrcrange="-63 63"/>
         <geom type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.898039 0.917647 0.929412 1" mesh="WAIST_Y_S"/>

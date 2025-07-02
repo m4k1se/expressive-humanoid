@@ -24,7 +24,7 @@ Data required for retargeting are stored in a retarget config dictionary as a js
   - scale: scale offset from source to target skeleton
 """
 
-VISUALIZE = False
+VISUALIZE = True
 
 def project_joints(motion):
     # 获取关节索引
@@ -233,6 +233,7 @@ def process(i, motion_name, source_tpose, target_tpose, source_motion, target_mo
 
     new_sk_state = SkeletonState.from_rotation_and_root_translation(target_motion.skeleton_tree, local_rotation, root_translation, is_local=True)
     target_motion = SkeletonMotion.from_skeleton_state(new_sk_state, fps=target_motion.fps)
+    plot_skeleton_motion_interactive(target_motion)
 
     # save retargeted motion
     target_motion.to_file(target_motion_path)
@@ -264,7 +265,8 @@ def save_all():
     all_motion_names.sort()
     print(len(all_motion_names))
     # Number of processes
-    n_workers = multiprocessing.cpu_count()
+    # n_workers = multiprocessing.cpu_count()
+    n_workers = 1
 
     # Create a pool of worker processes
     with multiprocessing.Pool(n_workers) as pool:
