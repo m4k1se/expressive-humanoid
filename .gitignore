@@ -5,3 +5,4 @@ isaacgym*
 *__pycache__*
 fbx/
 **/__pycache__/
+ASE/ase/poselib/data
